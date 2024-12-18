@@ -1,0 +1,39 @@
+.login {
+  @apply w-full min-h-screen flex items-center;
+  .container {
+    .formContent {
+      @apply w-full  flex items-center justify-between font-Poppins;
+      .form {
+        form {
+          @apply w-[540px] px-[100px] py-[100px];
+          .formHeading {
+            @apply font-Poppins font-medium text-[34px] text-[#030303] uppercase tracking-[1px] text-center;
+          }
+          .formText {
+            @apply font-Poppins font-medium text-[14px] text-[#636364] tracking-[1px] mb-[37px];
+          }
+
+          .emailSection,
+          .passwordSection {
+            @apply w-full flex flex-col gap-[6px] mb-[22px];
+            label {
+              @apply font-Poppins font-medium text-[14px] text-[#181818] tracking-[1px] flex items-center justify-between pr-[15px];
+            }
+            input {
+              @apply w-full border-[1px] border-[rgba(0,0,0,0.25)] rounded-[12px] placeholder:text-[14px] placeholder:font-Poppins placeholder:font-light placeholder:text-[#636364] placeholder:tracking-[1px] pl-[15px] py-[10px] outline-none font-Poppins font-light text-[#636364]  tracking-[1px];
+            }
+          }
+          .signUp {
+            @apply w-full;
+            .signUpText {
+              @apply font-Poppins font-medium text-[12px] text-[#595959] text-center;
+              a {
+                @apply text-[#EA454C];
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
