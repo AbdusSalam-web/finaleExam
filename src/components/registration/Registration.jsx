@@ -7,9 +7,12 @@ import {
   createUserWithEmailAndPassword,
   updateProfile,
   sendEmailVerification,
+  signInWithPopup,
+  GoogleAuthProvider,
 } from "firebase/auth";
 import "./Registration.css";
 import { Slide, toast } from "react-toastify";
+import { Blocks } from "react-loader-spinner";
 const Registration = () => {
   // ****** variable part
   const [showPassword, setShowPassword] = useState(false);
@@ -19,10 +22,13 @@ const Registration = () => {
   const [nameError, setNameError] = useState("");
   const [emailError, setEmailError] = useState("");
   const [passwordError, setPasswordError] = useState("");
+  const [loader, setLoader] = useState(false);
   // ****** firebase variable
   const auth = getAuth();
+  const provider = new GoogleAuthProvider();
   // ****** function part
   const handleSubmit = (e) => {
+    setLoader(true);
     e.preventDefault();
     setNameError("");
     setEmailError("");
@@ -36,7 +42,9 @@ const Registration = () => {
     if (!password) {
       setPasswordError("Password is blank!");
     }
+    setLoader(false);
     if (name && email && password) {
+      setLoader(true);
       // ****** creating the user
       createUserWithEmailAndPassword(auth, email, password)
         .then((userCredential) => {
@@ -57,8 +65,7 @@ const Registration = () => {
           setName("");
           setEmail("");
           setPassword("");
-          console.log(name, email, password);
-          
+
           // ****** sendig the varification email
           sendEmailVerification(auth.currentUser).then(() => {
             toast.success("Email verification sent!", {
@@ -88,7 +95,9 @@ const Registration = () => {
               // An error occurred
               // ...
             });
+          setLoader(false);
         })
+
         .catch((error) => {
           const errorCode = error.code;
           const errorMessage = error.message;
@@ -138,7 +147,31 @@ const Registration = () => {
         });
     }
   };
-
+  // ****** sing in with email
+  const handleEmailSignIn = (e) => {
+    e.preventDefault();
+    signInWithPopup(auth, provider)
+      .then((result) => {
+        // This gives you a Google Access Token. You can use it to access the Google API.
+        const credential = GoogleAuthProvider.credentialFromResult(result);
+        const token = credential.accessToken;
+        // The signed-in user info.
+        const user = result.user;
+        // IdP data available using getAdditionalUserInfo(result)
+        // ...
+      })
+      .catch((error) => {
+        // Handle Errors here.
+        const errorCode = error.code;
+        const errorMessage = error.message;
+        // The email of the user's account used.
+        const email = error.customData.email;
+        // The AuthCredential type that was used.
+        const credential = GoogleAuthProvider.credentialFromError(error);
+        // ...
+        console.log("🚀 ~ handleEmailSignIn ~ errorCode:", errorCode);
+      });
+  };
   return (
     <>
       <section className="registration">
@@ -152,6 +185,7 @@ const Registration = () => {
                   <label htmlFor="name">Name</label>
                   <input
                     type="text"
+                    value={name}
                     placeholder={nameError || "Enter your name"}
                     onChange={(e) => setName(e.target.value)}
                     className={nameError && "error"}
@@ -161,6 +195,7 @@ const Registration = () => {
                   <label htmlFor="email">Email</label>
                   <input
                     type="email"
+                    value={email}
                     placeholder={emailError || "Enter your email"}
                     onChange={(e) => setEmail(e.target.value)}
                     className={emailError && "error"}
@@ -187,6 +222,7 @@ const Registration = () => {
                     type={showPassword ? "text" : "password"}
                     name="password"
                     id="password"
+                    value={password}
                     placeholder={passwordError || "**********"}
                     onChange={(e) => setPassword(e.target.value)}
                     className={passwordError && "error"}
@@ -195,14 +231,29 @@ const Registration = () => {
                 <div className="flex flex-col items-center gap-4 p-4">
                   {/* Red Sign In Button */}
                   <button
-                    className=" w-full bg-red-500 text-white font-semibold py-2 rounded-lg shadow-md hover:bg-red-600 transition-all "
+                    className=" w-full bg-red-500 text-white font-semibold py-2 rounded-lg shadow-md hover:bg-red-600 transition-all flex items-center justify-center "
                     onClick={handleSubmit}
                   >
-                    Sign Up
+                    {loader ? (
+                      <Blocks
+                        height="24"
+                        width="24"
+                        color="#4fa94d"
+                        ariaLabel="blocks-loading"
+                        wrapperStyle={{}}
+                        wrapperClass="blocks-wrapper"
+                        visible={true}
+                      />
+                    ) : (
+                      "Sign Up"
+                    )}
                   </button>
                   {/* Sign in with Google Button */}
-                  <button className=" w-full flex items-center justify-center gap-2border border-gray-300 rounded-lg py-2 font-medium text-gray-700 shadow-md  hover:bg-gray-100 transition-all ">
-                    <FcGoogle className="w-6 h-6 pr-[5px]" />{" "}
+                  <button
+                    onClick={handleEmailSignIn}
+                    className=" w-full flex items-center justify-center gap-2border border-gray-300 rounded-lg py-2 font-medium text-gray-700 shadow-md  hover:bg-gray-100 transition-all "
+                  >
+                    <FcGoogle className="w-6 h-6 pr-[5px]" />
                     {/* Google Icon */}
                     Sign in with Google
                   </button>
